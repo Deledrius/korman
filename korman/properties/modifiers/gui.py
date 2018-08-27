@@ -17,6 +17,7 @@ import bpy
 import math
 import bmesh
 import mathutils
+from itertools import count, filterfalse
 from bpy.props import *
 from PyHSPlasma import *
 
@@ -58,6 +59,93 @@ journal_pfms = {
         )
     },
 }
+
+
+class PlasmaGUIColorScheme(bpy.types.PropertyGroup):
+    pl_id = "guicolorscheme"
+
+    font_face = StringProperty(name="Font Face")
+    font_size = IntProperty(name="Font Size")
+    transparent = BoolProperty(name="Transparent")
+
+    foreground_color = FloatVectorProperty(name="Shore Tint",
+                                     subtype="COLOR",
+                                     min=0.0, max=1.0)
+    background_color = FloatVectorProperty(name="Shore Tint",
+                                     subtype="COLOR",
+                                     min=0.0, max=1.0)
+    sel_foreground_color = FloatVectorProperty(name="Shore Tint",
+                                     subtype="COLOR",
+                                     min=0.0, max=1.0)
+    sel_background_color = FloatVectorProperty(name="Shore Tint",
+                                     subtype="COLOR",
+                                     min=0.0, max=1.0)
+
+
+class PlasmaGUIDialogModifier(PlasmaModifierProperties):
+    pl_id = "guidialogmod"
+
+    bl_category = "GUI"
+    bl_label = "Dialog"
+    bl_description = "Dialog Box containing GUI Controls"
+    bl_icon = "MENU_PANEL"
+
+    #controls = CollectionProperty(name="Controls")
+    #PFM - ProcReceiver
+    #renderMod - Camera (plPostEffectMod)
+    camera = PointerProperty(name="Camera", type=bpy.types.Camera)
+    color_scheme = PointerProperty(type=PlasmaGUIColorScheme)
+
+    def export(self, exporter, bo, so):
+        # Create the dialog modifier
+        mod = exporter.mgr.find_create_object(pfGUIDialogMod, so=so, name=self.key_name)
+
+
+class PlasmaGUIButtonModifier(PlasmaModifierProperties):
+    pl_id = "guibuttonmod"
+
+    bl_category = "GUI"
+    bl_label = "Button"
+    bl_description = "GUI Button Control"
+    bl_icon = "UI"
+
+    def export(self, exporter, bo, so):
+        # Create the button modifier
+        mod = exporter.mgr.find_create_object(pfGUIButtonMod, so=so, name=self.key_name)
+
+    @property
+    def requires_actor(self):
+        return True
+
+
+class PlasmaGUIPopupModifier(PlasmaModifierProperties):
+    pl_id = "guipopupmod"
+
+    bl_category = "GUI"
+    bl_label = "PopUp"
+    bl_description = "GUI Simple PopUp"
+    bl_icon = "MENU_PANEL"
+
+    def next_unsused_page(self, pages):
+        page_nums = {pages[page_name].page for page_name in pages}
+        return next(filterfalse(page_nums.__contains__, count(1)))
+
+    def export(self, exporter, bo, so):
+        new_page = self.next_unsused_page(exporter.mgr._pages)
+        so.key.location.page = new_page
+        print(so.key.location)
+        exporter.mgr.create_page(exporter.age_name, "GUIDialog{}".format(self.key_name), new_page)
+
+        # Create clickoff button
+        #button = exporter.mgr.find_create_object(pfGUIButtonMod, so=so, name=self.key_name)
+        button = exporter.mgr.add_object(pfGUIButtonMod, name=self.key_name, loc=so.key.location, so=so)
+        # Create camera
+        pem = exporter.mgr.find_create_object(plPostEffectMod, so=so, name=self.key_name)
+        # Create the dialog modifier
+        mod = exporter.mgr.find_create_object(pfGUIDialogMod, so=so, name=self.key_name)
+        mod.setFlag(0, True) #kModal
+        mod.addControl(button.key)
+
 
 class PlasmaJournalBookModifier(PlasmaModifierProperties, PlasmaModifierLogicWiz):
     pl_id = "journalbookmod"

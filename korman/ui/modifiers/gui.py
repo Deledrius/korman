@@ -15,6 +15,28 @@
 
 import bpy
 
+
+def draw_colorscheme(modifier, layout):
+    if modifier.color_scheme:
+        layout.prop(modifier.color_scheme, "font_face")
+        layout.prop(modifier.color_scheme, "font_size")
+        layout.prop(modifier.color_scheme, "transparent")
+        layout.prop(modifier.color_scheme, "foreground_color")
+        layout.prop(modifier.color_scheme, "background_color")
+        layout.prop(modifier.color_scheme, "sel_foreground_color")
+        layout.prop(modifier.color_scheme, "sel_background_color")
+
+def guidialogmod(modifier, layout, context):
+    draw_colorscheme(modifier, layout)
+    layout.prop(modifier, "camera")
+    #layout.prop(modifier, "controls", text="Controls")
+
+def guibuttonmod(modifier, layout, context):
+    draw_colorscheme(modifier, layout)
+    layout.label(text="Camera")
+    layout.label(text="Dialog Background")
+    layout.label(text="Controls")
+
 def journalbookmod(modifier, layout, context):
     layout.prop_menu_enum(modifier, "versions")
 
