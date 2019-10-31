@@ -44,6 +44,10 @@ class PlasmaLamp(idprops.IDPropObjectMixin, bpy.types.PropertyGroup):
                                description="This light can cause objects to cast shadows on themselves",
                                default=False,
                                options=set())
+    shadow_maxquality = IntProperty(name="Quality",
+                                 description="Maximum quality for the shadow",
+                                 min=0, max=256, default=256,
+                                 options=set())
 
     lamp_region = PointerProperty(name="Soft Volume",
                                   description="Soft region this light is active inside",

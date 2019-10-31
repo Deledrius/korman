@@ -50,6 +50,7 @@ class PlasmaLampPanel(LampButtonsPanel, bpy.types.Panel):
         col.prop(rtlamp, "shadow_power")
         col.prop(rtlamp, "shadow_falloff")
         col.prop(rtlamp, "shadow_distance")
+        col.prop(rtlamp, "shadow_maxquality")
 
         if not context.object.plasma_modifiers.softvolume.enabled:
             layout.separator()

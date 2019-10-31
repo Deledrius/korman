@@ -235,6 +235,7 @@ class LightConverter:
         shadow.attenDist = rtlamp.shadow_falloff
         shadow.maxDist = rtlamp.shadow_distance
         shadow.minDist = rtlamp.shadow_distance * 0.75
+        shadow.maxSize = rtlamp.shadow_maxquality
         shadow.power = rtlamp.shadow_power / 100.0
         shadow.setProperty(plShadowMaster.kSelfShadow, rtlamp.shadow_self)
 
